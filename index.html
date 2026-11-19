@@ -1,412 +1,178 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SpinGift — Маркетплейс подарков</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>SpinGift</title>
   <script src="https://telegram.org"></script>
   <style>
-    :root {
-      --bg: #0f1117;
-      --card: #1a1d26;
-      --card-hover: #222632;
-      --accent: #3b82f6;
-      --accent-glow: rgba(59, 130, 246, 0.35);
-      --gold: #f59e0b;
-      --ton: #0098ea;
-      --text: #f3f4f6;
-      --muted: #9ca3af;
-      --border: #2a2f3d;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      padding-bottom: 85px;
+      background: #090b10;
+      color: #ffffff;
+      padding-bottom: 95px;
       min-height: 100vh;
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.28), transparent 45%),
+        radial-gradient(circle at 85% 40%, rgba(139, 92, 246, 0.24), transparent 45%),
+        radial-gradient(circle at 50% 85%, rgba(14, 165, 233, 0.22), transparent 50%);
+      background-attachment: fixed;
     }
-
-    /* Шапка */
+    .glass {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
     header {
       position: sticky;
-      top: 0;
-      z-index: 10;
-      background: rgba(15, 17, 23, 0.9);
-      backdrop-filter: blur(12px);
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
+      top: 10px;
+      z-index: 15;
+      margin: 10px 14px 0;
+      padding: 12px 16px;
+      border-radius: 26px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-
-    .logo {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .logo span {
-      background: linear-gradient(90deg, #60a5fa, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .wallet-badge {
-      background: var(--card);
-      border: 1px solid var(--border);
-      padding: 6px 12px;
+    .logo { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
+    .ton-btn {
+      background: linear-gradient(145deg, rgba(56, 189, 248, 0.26), rgba(56, 189, 248, 0.08));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      color: #7dd3fc;
+      border: 1px solid rgba(125, 211, 252, 0.35);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      padding: 8px 14px;
       border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #60a5fa;
+      font-size: 12px;
+      font-weight: 700;
       cursor: pointer;
     }
-
-    /* Контейнер вкладок */
-    .tab-content {
-      display: none;
-      padding: 16px;
-      animation: fadeIn 0.2s ease;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Баннер */
-    .banner {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 18px;
-    }
-
-    .banner h2 {
-      font-size: 17px;
-      margin-bottom: 6px;
-    }
-
-    .banner p {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-
-    /* Сетка подарков */
-    .section-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-
-    .gift-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      transition: transform 0.15s ease;
-    }
-
-    .gift-card:active {
-      transform: scale(0.97);
-    }
-
-    .gift-icon {
-      font-size: 48px;
-      margin: 8px 0 12px;
-      filter: drop-shadow(0 4px 12px rgba(255, 255, 255, 0.1));
-    }
-
-    .gift-name {
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .gift-rarity {
-      font-size: 11px;
-      color: var(--muted);
-      background: rgba(255, 255, 255, 0.05);
-      padding: 2px 8px;
-      border-radius: 10px;
-      margin-bottom: 12px;
-    }
-
-    .buy-buttons {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
+    .tab { display: none; padding: 16px 14px; }
+    .tab.active { display: block; animation: fade 0.22s ease; }
+    @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .card { border-radius: 26px; padding: 16px; margin-bottom: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .gift { border-radius: 26px; padding: 14px 12px; text-align: center; }
+    .icon { font-size: 46px; margin: 6px 0 8px; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4)); }
     .btn {
       width: 100%;
-      border: none;
-      border-radius: 10px;
-      padding: 8px 10px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-    }
-
-    .btn-stars {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-
-    .btn-ton {
-      background: rgba(0, 152, 234, 0.15);
-      color: #38bdf8;
-      border: 1px solid rgba(0, 152, 234, 0.3);
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-      padding: 12px;
-      font-size: 14px;
-      box-shadow: 0 4px 14px var(--accent-glow);
-    }
-
-    /* Задания и реклама */
-    .task-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .task-info h4 {
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
-
-    .task-info p {
+      border-radius: 18px;
+      padding: 10px;
+      margin-top: 8px;
       font-size: 12px;
-      color: var(--muted);
-    }
-
-    .task-btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-
-    /* Профиль */
-    .profile-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .avatar {
-      width: 68px;
-      height: 68px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      font-weight: 800;
-      margin: 0 auto 12px;
-    }
-
-    .user-name {
-      font-size: 18px;
       font-weight: 700;
-      margin-bottom: 4px;
+      cursor: pointer;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+      transition: transform 0.12s ease;
     }
-
-    .user-handle {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    /* Нижнее меню */
+    .btn:active { transform: scale(0.96); }
+    .stars { background: linear-gradient(145deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.08)); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.35); }
+    .ton { background: linear-gradient(145deg, rgba(56, 189, 248, 0.25), rgba(14, 165, 233, 0.08)); color: #bae6fd; border: 1px solid rgba(56, 189, 248, 0.35); }
+    .blue { background: linear-gradient(145deg, rgba(59, 130, 246, 0.48), rgba(37, 99, 235, 0.2)); color: #fff; border: 1px solid rgba(147, 197, 253, 0.4); padding: 13px; font-size: 14px; border-radius: 20px; }
     nav {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(26, 29, 38, 0.95);
-      backdrop-filter: blur(12px);
-      border-top: 1px solid var(--border);
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      border-radius: 30px;
       display: flex;
-      justify-content: space-around;
-      padding: 10px 0 14px;
+      padding: 6px;
       z-index: 20;
     }
-
-    .nav-item {
-      background: none;
-      border: none;
-      color: var(--muted);
+    .nav-btn {
+      flex: 1;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 24px;
+      padding: 8px 0;
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 11px;
+      font-weight: 700;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      font-weight: 600;
+      gap: 3px;
       cursor: pointer;
-      width: 33%;
+      transition: all 0.18s ease;
     }
-
-    .nav-item.active {
-      color: #60a5fa;
-    }
-
-    .nav-icon {
-      font-size: 20px;
+    .nav-btn.active {
+      color: #ffffff;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
     }
   </style>
 </head>
 <body>
-
-  <header>
-    <div class="logo">🎁 <span>SpinGift</span></div>
-    <div class="wallet-badge" onclick="connectWallet()">💎 Подключить TON</div>
+  <header class="glass">
+    <div class="logo">🎁 SpinGift</div>
+    <button class="ton-btn" onclick="msg('Подключение Tonkeeper скоро будет добавлено')">💎 Подключить TON</button>
   </header>
 
-  <!-- Вкладка 1: Маркет -->
-  <div id="tab-market" class="tab-content active">
-    <div class="banner">
-      <h2>Маркетплейс подарков</h2>
-      <p>Покупайте и продавайте редкие коллекционные подарки Telegram напрямую через Stars и TON.</p>
+  <div id="market" class="tab active">
+    <div class="card glass">
+      <b>Маркетплейс подарков</b>
+      <p style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:4px;">Покупка и продажа редких подарков за Stars и TON.</p>
     </div>
-
-    <div class="section-title">
-      <span>Витрина подарков</span>
-      <span style="font-size: 12px; color: var(--muted);">Комиссия 15%</span>
-    </div>
-
-    <div class="grid" id="gifts-grid"></div>
-  </div>
-
-  <!-- Вкладка 2: Задания -->
-  <div id="tab-tasks" class="tab-content">
-    <div class="banner">
-      <h2>Бонусы и задания</h2>
-      <p>Выполняйте задания партнёров и смотрите рекламу, чтобы получать скидки и бонусные очки.</p>
-    </div>
-
-    <div class="task-card">
-      <div class="task-info">
-        <h4>📺 Посмотреть рекламу (AdsGram)</h4>
-        <p>Награда: +10 бонусов к рейтингу</p>
-      </div>
-      <button class="task-btn" onclick="watchAd()">Смотреть</button>
-    </div>
-
-    <div class="task-card">
-      <div class="task-info">
-        <h4>📢 Подписаться на канал SpinGift</h4>
-        <p>Награда: +50 бонусов и доступ к акциям</p>
-      </div>
-      <button class="task-btn" onclick="notify('Проверка подписки...')">Перейти</button>
+    <div class="grid">
+      <div class="gift glass"><div class="icon">🧸</div><b>Plush Pepe</b><button class="btn stars" onclick="msg('Покупка за 250 Stars')">⭐ 250 Stars</button><button class="btn ton" onclick="msg('Покупка за 1.5 TON')">💎 1.5 TON</button></div>
+      <div class="gift glass"><div class="icon">💎</div><b>Astral Shard</b><button class="btn stars" onclick="msg('Покупка за 800 Stars')">⭐ 800 Stars</button><button class="btn ton" onclick="msg('Покупка за 4.8 TON')">💎 4.8 TON</button></div>
+      <div class="gift glass"><div class="icon">🎩</div><b>Durov’s Cap</b><button class="btn stars" onclick="msg('Покупка за 2500 Stars')">⭐ 2500 Stars</button><button class="btn ton" onclick="msg('Покупка за 15 TON')">💎 15 TON</button></div>
+      <div class="gift glass"><div class="icon">🔮</div><b>Crystal Ball</b><button class="btn stars" onclick="msg('Покупка за 450 Stars')">⭐ 450 Stars</button><button class="btn ton" onclick="msg('Покупка за 2.7 TON')">💎 2.7 TON</button></div>
     </div>
   </div>
 
-  <!-- Вкладка 3: Профиль -->
-  <div id="tab-profile" class="tab-content">
-    <div class="profile-box">
-      <div class="avatar" id="user-avatar">SG</div>
-      <div class="user-name" id="user-name">Пользователь Telegram</div>
-      <div class="user-handle" id="user-handle">@username</div>
+  <div id="tasks" class="tab">
+    <div class="card glass">
+      <b>📺 Реклама AdsGram</b>
+      <p style="font-size:12px;color:rgba(255,255,255,0.65);margin:4px 0 8px;">Смотрите ролик и получайте бонусы.</p>
+      <button class="btn blue" onclick="msg('Здесь запустится реклама AdsGram')">Смотреть рекламу</button>
     </div>
-
-    <div class="banner">
-      <h2>Прямая синхронизация</h2>
-      <p>Ваши подарки, Stars и TON не хранятся на сторонних серверах — сделки проходят напрямую через ваш аккаунт Telegram и Tonkeeper.</p>
+    <div class="card glass">
+      <b>📢 Канал SpinGift</b>
+      <p style="font-size:12px;color:rgba(255,255,255,0.65);margin:4px 0 8px;">Подпишитесь на новости проекта.</p>
+      <button class="btn blue" onclick="msg('Проверка подписки')">Перейти</button>
     </div>
-
-    <button class="btn btn-primary" onclick="notify('Функция выставления подарка на продажу скоро будет подключена к боту!')">
-      ➕ Выставить свой подарок на продажу
-    </button>
   </div>
 
-  <!-- Нижняя панель навигации -->
-  <nav>
-    <button class="nav-item active" onclick="switchTab('market', this)">
-      <span class="nav-icon">🛍️</span>
-      <span>Маркет</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('tasks', this)">
-      <span class="nav-icon">⚡</span>
-      <span>Задания</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('profile', this)">
-      <span class="nav-icon">👤</span>
-      <span>Профиль</span>
-    </button>
+  <div id="profile" class="tab">
+    <div class="card glass" style="text-align:center;">
+      <div style="font-size:44px;margin-bottom:8px;">👤</div>
+      <b id="uname" style="font-size:17px;">Пользователь</b>
+      <p id="uhandle" style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px;">@username</p>
+    </div>
+    <button class="btn blue" onclick="msg('Скоро здесь можно будет выставить свой подарок')">➕ Продать свой подарок</button>
+  </div>
+
+  <nav class="glass">
+    <button class="nav-btn active" onclick="openTab('market', this)"><span style="font-size:18px;">🛍️</span>Маркет</button>
+    <button class="nav-btn" onclick="openTab('tasks', this)"><span style="font-size:18px;">⚡</span>Задания</button>
+    <button class="nav-btn" onclick="openTab('profile', this)"><span style="font-size:18px;">👤</span>Профиль</button>
   </nav>
 
   <script>
-    // Инициализация Telegram WebApp
-    const tg = window.Telegram?.WebApp;
+    const tg = window.Telegram && window.Telegram.WebApp;
     if (tg) {
       tg.ready();
       tg.expand();
-      const user = tg.initDataUnsafe?.user;
-      if (user) {
-        const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ');
-        document.getElementById('user-name').textContent = fullName || 'Пользователь';
-        document.getElementById('user-handle').textContent = user.username ? '@' + user.username : 'ID: ' + user.id;
-        document.getElementById('user-avatar').textContent = (user.first_name || 'S')[0].toUpperCase();
+      const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
+      if (u) {
+        document.getElementById('uname').innerText = u.first_name || 'Пользователь';
+        document.getElementById('uhandle').innerText = u.username ? '@' + u.username : 'ID: ' + u.id;
       }
     }
-
-    // Демо-список подарков для витрины
-    const gifts = [
-      { id: 1, icon: '🧸', name: 'Plush Pepe', rarity: 'Редкий #104', stars: 250, ton: 1.5 },
-
+    function openTab(id, btn) {
+      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+    }
+    function msg(t) { tg && tg.showAlert ? tg.showAlert(t) : alert(t); }
+  </script>
+</body>
+</html>
