@@ -1,244 +1,376 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>SpinGift</title>
-  <script src="https://telegram.org"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body {
-      background: #090b10;
-      color: #ffffff;
-      padding-bottom: 95px;
-      min-height: 100vh;
-      background-image:
-        radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.28), transparent 45%),
-        radial-gradient(circle at 85% 40%, rgba(139, 92, 246, 0.24), transparent 45%),
-        radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.2), transparent 50%);
-      background-attachment: fixed;
-    }
-    .glass {
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-    }
-    header {
-      position: sticky;
-      top: 10px;
-      z-index: 15;
-      margin: 10px 14px 0;
-      padding: 12px 16px;
-      border-radius: 26px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .logo { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
-    .ton-btn {
-      background: linear-gradient(145deg, rgba(56, 189, 248, 0.26), rgba(56, 189, 248, 0.08));
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      color: #7dd3fc;
-      border: 1px solid rgba(125, 211, 252, 0.35);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .tab { display: none; padding: 16px 14px; }
-    .tab.active { display: block; animation: fade 0.22s ease; }
-    @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-    .market-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      padding: 0 4px;
-    }
-    .sell-green {
-      background: linear-gradient(145deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.14));
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      color: #6ee7b7;
-      border: 1px solid rgba(52, 211, 153, 0.45);
-      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-      padding: 8px 14px;
-      border-radius: 14px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.12s ease;
-    }
-    .sell-green:active { transform: scale(0.95); }
-    .card { border-radius: 26px; padding: 16px; margin-bottom: 14px; }
-    .empty-box { text-align: center; padding: 36px 20px; border-radius: 26px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .gift { border-radius: 26px; padding: 14px 12px; text-align: center; }
-    .icon { font-size: 46px; margin: 6px 0 8px; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4)); }
-    .btn {
-      width: 100%;
-      border-radius: 18px;
-      padding: 10px;
-      margin-top: 8px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
-      transition: transform 0.12s ease;
-    }
-    .btn:active { transform: scale(0.96); }
-    .stars { background: linear-gradient(145deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.08)); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.35); }
-    .ton { background: linear-gradient(145deg, rgba(56, 189, 248, 0.25), rgba(14, 165, 233, 0.08)); color: #bae6fd; border: 1px solid rgba(56, 189, 248, 0.35); }
-    .blue { background: linear-gradient(145deg, rgba(59, 130, 246, 0.48), rgba(37, 99, 235, 0.2)); color: #fff; border: 1px solid rgba(147, 197, 253, 0.4); padding: 13px; font-size: 14px; border-radius: 20px; }
-    .modal-bg {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(8px);
-      z-index: 50;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .modal-bg.open { display: flex; }
-    .modal { width: 100%; max-width: 360px; border-radius: 28px; padding: 20px; }
-    .inp {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 14px;
-      padding: 11px 12px;
-      color: #fff;
-      font-size: 14px;
-      margin-top: 8px;
-      outline: none;
-    }
-    nav {
-      position: fixed;
-      bottom: 14px;
-      left: 14px;
-      right: 14px;
-      border-radius: 30px;
-      display: flex;
-      padding: 6px;
-      z-index: 20;
-    }
-    .nav-btn {
-      flex: 1;
-      background: transparent;
-      border: 1px solid transparent;
-      border-radius: 24px;
-      padding: 8px 0;
-      color: rgba(255, 255, 255, 0.55);
-      font-size: 11px;
-      font-weight: 700;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      cursor: pointer;
-      transition: all 0.18s ease;
-    }
-    .nav-btn.active {
-      color: #ffffff;
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
-      border-color: rgba(255, 255, 255, 0.25);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
-    }
-  </style>
-</head>
-<body>
-  <header class="glass">
-    <div class="logo">🎁 SpinGift</div>
-    <button class="ton-btn" onclick="msg('Подключение Tonkeeper скоро будет добавлено')">💎 Подключить TON</button>
-  </header>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SpinGift</title>
+    <script src="https://telegram.org"></script>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --accent-green: rgba(46, 204, 113, 0.35);
+            --accent-green-border: rgba(46, 204, 113, 0.6);
+        }
 
-  <div id="market" class="tab active">
-    <div class="market-top">
-      <b style="font-size:17px;">Витрина подарков</b>
-      <button class="sell-green" onclick="openSell()">➕ Продать</button>
-    </div>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    <div id="empty-state" class="empty-box glass">
-      <div style="font-size:42px;margin-bottom:10px;">📦</div>
-      <b>На витрине пока пусто</b>
-      <p style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:6px;">Нажмите зелёную кнопку «Продать» сверху, чтобы выставить свой подарок.</p>
-    </div>
+        body {
+            background: radial-gradient(circle at 15% 15%, #1c2541 0%, #0b132b 50%, #050814 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
 
-    <div id="lots-grid" class="grid"></div>
-  </div>
+        /* Фоновые блики для эффекта жидкого стекла */
+        .ambient-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(70px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .blob-1 {
+            width: 250px;
+            height: 250px;
+            background: rgba(58, 134, 255, 0.25);
+            top: -50px;
+            left: -50px;
+        }
+        .blob-2 {
+            width: 280px;
+            height: 280px;
+            background: rgba(131, 56, 236, 0.2);
+            bottom: 80px;
+            right: -60px;
+        }
 
-  <div id="tasks" class="tab">
-    <div class="card glass">
-      <b>📺 Реклама AdsGram</b>
-      <p style="font-size:12px;color:rgba(255,255,255,0.65);margin:4px 0 8px;">Смотрите ролик и получайте бонусы.</p>
-      <button class="btn blue" onclick="msg('Здесь запустится реклама AdsGram')">Смотреть рекламу</button>
-    </div>
-    <div class="card glass">
-      <b>📢 Канал SpinGift</b>
-      <p style="font-size:12px;color:rgba(255,255,255,0.65);margin:4px 0 8px;">Подпишитесь на новости проекта.</p>
-      <button class="btn blue" onclick="msg('Проверка подписки')">Перейти</button>
-    </div>
-  </div>
+        /* Базовый класс жидкого стекла */
+        .liquid-glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
 
-  <div id="profile" class="tab">
-    <div class="card glass" style="text-align:center;">
-      <div style="font-size:44px;margin-bottom:8px;">👤</div>
-      <b id="uname" style="font-size:17px;">Пользователь</b>
-      <p id="uhandle" style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px;">@username</p>
-    </div>
-    <div class="card glass">
-      <b>Прямая синхронизация</b>
-      <p style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:4px;">Ваши подарки, Stars, TON и Gram не хранятся на сторонних серверах и привязаны к вашему аккаунту.</p>
-    </div>
-  </div>
+        /* Верхняя шапка */
+        header {
+            position: relative;
+            z-index: 10;
+            padding: 16px 16px 8px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-  <!-- Окно продажи подарка -->
-  <div id="sell-modal" class="modal-bg">
-    <div class="modal glass">
-      <b style="font-size:17px;">Выставить подарок</b>
-      <p style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px;">Комиссия маркета составляет 15%</p>
-      <input id="g-name" class="inp" placeholder="Название подарка (например, Plush Pepe)">
-      <input id="g-price" class="inp" type="number" placeholder="Цена (например, 500)">
-      <select id="g-curr" class="inp" style="background:#141824;">
-        <option value="Stars">⭐ Telegram Stars</option>
-        <option value="TON">💎 TON</option>
-        <option value="Gram">🪙 Gram</option>
-      </select>
-      <button class="btn sell-green" style="width:100%;padding:12px;margin-top:14px;font-size:14px;" onclick="addLot()">Опубликовать на витрину</button>
-      <button class="btn" style="background:rgba(255,255,255,0.08);color:#fff;" onclick="closeSell()">Отмена</button>
-    </div>
-  </div>
+        .app-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff 0%, #a8c0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-  <nav class="glass">
-    <button class="nav-btn active" onclick="openTab('market', this)"><span style="font-size:18px;">🛍️</span>Маркет</button>
-    <button class="nav-btn" onclick="openTab('tasks', this)"><span style="font-size:18px;">⚡</span>Задания</button>
-    <button class="nav-btn" onclick="openTab('profile', this)"><span style="font-size:18px;">👤</span>Профиль</button>
-  </nav>
+        /* Плашка баланса в правом верхнем углу */
+        .top-balance-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
 
-  <script>
-    const tg = window.Telegram && window.Telegram.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.expand();
-      const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
-      if (u) {
-        document.getElementById('uname').innerText = u.first_name || 'Пользователь';
-        document.getElementById('uhandle').innerText = u.username ? '@' + u.username : 'ID: ' + u.id;
-      }
-    }
-    function openTab(id, btn) {
-      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      btn.classList.add('active');
-    }
-    function openSell() { document.getElementById('sell-modal').classList.add('open'); }
+        .balance-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .currency-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .connect-ton-mini {
+            background: rgba(0, 152, 234, 0.3);
+            border: 1px solid rgba(0, 152, 234, 0.6);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        /* Основной контент вкладок */
+        main {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            padding: 12px 16px 140px 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Пустое состояние маркета */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px 20px;
+            border-radius: 24px;
+            margin-top: 10px;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.85;
+        }
+
+        .empty-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .empty-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Зелёная кнопка Продать */
+        .sell-btn-container {
+            position: fixed;
+            bottom: 84px;
+            left: 16px;
+            right: 16px;
+            z-index: 20;
+        }
+
+        .sell-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 20px;
+            background: var(--accent-green);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--accent-green-border);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(46, 204, 113, 0.25);
+            transition: transform 0.15s ease;
+        }
+
+        .sell-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Вкладка Задания */
+        .task-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-radius: 22px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        .task-card:active {
+            transform: scale(0.98);
+        }
+
+        .task-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .task-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .task-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .task-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .task-action {
+            padding: 8px 14px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.15);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Вкладка Профиль */
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 24px;
+        }
+
+        .avatar-box {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+            margin-bottom: 12px;
+        }
+
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .profile-username {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Плашка баланса чуть ниже середины экрана в профиле */
+        .profile-balance-section {
+            margin-top: auto;
+            margin-bottom: 35px;
+            width: 100%;
+        }
+
+        .profile-balance-card {
+            padding: 18px;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .balance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* Нижняя панель навигации */
+        nav.bottom-nav {
+            position: fixed;
+            bottom: 14px;
+            left: 16px;
+            right: 16px;
+            height: 60px;
+            border-radius: 26px;
+            z-index: 30;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 4px;
+        }
+
+        .nav-item {
+            flex: 1;
+            height: 100%;
+            border-radius: 22px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            gap: 2px;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.16);
+            color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* Модальное окно инвентаря */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 50;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-sheet {
