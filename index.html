@@ -34,7 +34,6 @@
             position: relative;
         }
 
-        /* Фоновые блики для эффекта жидкого стекла */
         .ambient-blob {
             position: fixed;
             border-radius: 50%;
@@ -57,7 +56,6 @@
             right: -60px;
         }
 
-        /* Базовый класс жидкого стекла */
         .liquid-glass {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
@@ -66,7 +64,6 @@
             box-shadow: var(--glass-shadow);
         }
 
-        /* Верхняя шапка */
         header {
             position: relative;
             z-index: 10;
@@ -86,7 +83,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Плашка баланса в правом верхнем углу */
         .top-balance-wrapper {
             width: 100%;
             display: flex;
@@ -120,7 +116,6 @@
             cursor: pointer;
         }
 
-        /* Основной контент вкладок */
         main {
             position: relative;
             z-index: 10;
@@ -140,7 +135,6 @@
             display: flex;
         }
 
-        /* Пустое состояние маркета */
         .empty-state {
             flex: 1;
             display: flex;
@@ -171,7 +165,6 @@
             line-height: 1.4;
         }
 
-        /* Зелёная кнопка Продать */
         .sell-btn-container {
             position: fixed;
             bottom: 84px;
@@ -201,7 +194,6 @@
             transform: scale(0.98);
         }
 
-        /* Вкладка Задания */
         .task-card {
             display: flex;
             align-items: center;
@@ -253,7 +245,6 @@
             font-weight: 600;
         }
 
-        /* Вкладка Профиль */
         .profile-header {
             display: flex;
             flex-direction: column;
@@ -292,7 +283,6 @@
             margin-top: 4px;
         }
 
-        /* Плашка баланса чуть ниже середины экрана в профиле */
         .profile-balance-section {
             margin-top: auto;
             margin-bottom: 35px;
@@ -315,7 +305,6 @@
             font-weight: 600;
         }
 
-        /* Нижняя панель навигации */
         nav.bottom-nav {
             position: fixed;
             bottom: 14px;
@@ -356,7 +345,6 @@
             font-size: 18px;
         }
 
-        /* Модальное окно инвентаря */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -374,3 +362,21 @@
         }
 
         .modal-sheet {
+            width: 100%;
+            max-width: 500px;
+            min-height: 55vh;
+            border-radius: 30px 30px 0 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.25s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
