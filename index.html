@@ -15,7 +15,7 @@
       background-image:
         radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.28), transparent 45%),
         radial-gradient(circle at 85% 40%, rgba(139, 92, 246, 0.24), transparent 45%),
-        radial-gradient(circle at 50% 85%, rgba(14, 165, 233, 0.22), transparent 50%);
+        radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.2), transparent 50%);
       background-attachment: fixed;
     }
     .glass {
@@ -53,7 +53,30 @@
     .tab { display: none; padding: 16px 14px; }
     .tab.active { display: block; animation: fade 0.22s ease; }
     @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .market-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding: 0 4px;
+    }
+    .sell-green {
+      background: linear-gradient(145deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.14));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      color: #6ee7b7;
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      padding: 8px 14px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+    .sell-green:active { transform: scale(0.95); }
     .card { border-radius: 26px; padding: 16px; margin-bottom: 14px; }
+    .empty-box { text-align: center; padding: 36px 20px; border-radius: 26px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .gift { border-radius: 26px; padding: 14px 12px; text-align: center; }
     .icon { font-size: 46px; margin: 6px 0 8px; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4)); }
@@ -74,6 +97,30 @@
     .stars { background: linear-gradient(145deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.08)); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.35); }
     .ton { background: linear-gradient(145deg, rgba(56, 189, 248, 0.25), rgba(14, 165, 233, 0.08)); color: #bae6fd; border: 1px solid rgba(56, 189, 248, 0.35); }
     .blue { background: linear-gradient(145deg, rgba(59, 130, 246, 0.48), rgba(37, 99, 235, 0.2)); color: #fff; border: 1px solid rgba(147, 197, 253, 0.4); padding: 13px; font-size: 14px; border-radius: 20px; }
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-bg.open { display: flex; }
+    .modal { width: 100%; max-width: 360px; border-radius: 28px; padding: 20px; }
+    .inp {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 14px;
+      padding: 11px 12px;
+      color: #fff;
+      font-size: 14px;
+      margin-top: 8px;
+      outline: none;
+    }
     nav {
       position: fixed;
       bottom: 14px;
@@ -115,16 +162,18 @@
   </header>
 
   <div id="market" class="tab active">
-    <div class="card glass">
-      <b>Маркетплейс подарков</b>
-      <p style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:4px;">Покупка и продажа редких подарков за Stars и TON.</p>
+    <div class="market-top">
+      <b style="font-size:17px;">Витрина подарков</b>
+      <button class="sell-green" onclick="openSell()">➕ Продать</button>
     </div>
-    <div class="grid">
-      <div class="gift glass"><div class="icon">🧸</div><b>Plush Pepe</b><button class="btn stars" onclick="msg('Покупка за 250 Stars')">⭐ 250 Stars</button><button class="btn ton" onclick="msg('Покупка за 1.5 TON')">💎 1.5 TON</button></div>
-      <div class="gift glass"><div class="icon">💎</div><b>Astral Shard</b><button class="btn stars" onclick="msg('Покупка за 800 Stars')">⭐ 800 Stars</button><button class="btn ton" onclick="msg('Покупка за 4.8 TON')">💎 4.8 TON</button></div>
-      <div class="gift glass"><div class="icon">🎩</div><b>Durov’s Cap</b><button class="btn stars" onclick="msg('Покупка за 2500 Stars')">⭐ 2500 Stars</button><button class="btn ton" onclick="msg('Покупка за 15 TON')">💎 15 TON</button></div>
-      <div class="gift glass"><div class="icon">🔮</div><b>Crystal Ball</b><button class="btn stars" onclick="msg('Покупка за 450 Stars')">⭐ 450 Stars</button><button class="btn ton" onclick="msg('Покупка за 2.7 TON')">💎 2.7 TON</button></div>
+
+    <div id="empty-state" class="empty-box glass">
+      <div style="font-size:42px;margin-bottom:10px;">📦</div>
+      <b>На витрине пока пусто</b>
+      <p style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:6px;">Нажмите зелёную кнопку «Продать» сверху, чтобы выставить свой подарок.</p>
     </div>
+
+    <div id="lots-grid" class="grid"></div>
   </div>
 
   <div id="tasks" class="tab">
@@ -146,7 +195,27 @@
       <b id="uname" style="font-size:17px;">Пользователь</b>
       <p id="uhandle" style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px;">@username</p>
     </div>
-    <button class="btn blue" onclick="msg('Скоро здесь можно будет выставить свой подарок')">➕ Продать свой подарок</button>
+    <div class="card glass">
+      <b>Прямая синхронизация</b>
+      <p style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:4px;">Ваши подарки, Stars, TON и Gram не хранятся на сторонних серверах и привязаны к вашему аккаунту.</p>
+    </div>
+  </div>
+
+  <!-- Окно продажи подарка -->
+  <div id="sell-modal" class="modal-bg">
+    <div class="modal glass">
+      <b style="font-size:17px;">Выставить подарок</b>
+      <p style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px;">Комиссия маркета составляет 15%</p>
+      <input id="g-name" class="inp" placeholder="Название подарка (например, Plush Pepe)">
+      <input id="g-price" class="inp" type="number" placeholder="Цена (например, 500)">
+      <select id="g-curr" class="inp" style="background:#141824;">
+        <option value="Stars">⭐ Telegram Stars</option>
+        <option value="TON">💎 TON</option>
+        <option value="Gram">🪙 Gram</option>
+      </select>
+      <button class="btn sell-green" style="width:100%;padding:12px;margin-top:14px;font-size:14px;" onclick="addLot()">Опубликовать на витрину</button>
+      <button class="btn" style="background:rgba(255,255,255,0.08);color:#fff;" onclick="closeSell()">Отмена</button>
+    </div>
   </div>
 
   <nav class="glass">
@@ -172,7 +241,4 @@
       document.getElementById(id).classList.add('active');
       btn.classList.add('active');
     }
-    function msg(t) { tg && tg.showAlert ? tg.showAlert(t) : alert(t); }
-  </script>
-</body>
-</html>
+    function openSell() { document.getElementById('sell-modal').classList.add('open'); }
