@@ -121,6 +121,36 @@ try{
 </script>
 </body>
 </html>
+<script>
+setInterval(function() {
+    try {
+        var tg = window.Telegram && window.Telegram.WebApp;
+        if (!tg) return;
+        tg.ready();
+        var u = tg.initDataUnsafe && tg.initDataUnsafe.user;
+        if (!u && tg.initData) {
+            var m = tg.initData.match(/user=([^&]+)/);
+            if (m) u = JSON.parse(decodeURIComponent(m));
+        }
+        if (!u) return;
+
+        var fullName = [u.first_name, u.last_name].filter(Boolean).join(' ');
+        var nameEl = document.getElementById('uname') || document.getElementById('user-name');
+        var userEl = document.getElementById('uuser') || document.getElementById('user-username');
+        var avaEl = document.getElementById('ava') || document.getElementById('user-avatar-box');
+
+        if (nameEl && fullName) nameEl.innerText = fullName;
+        if (userEl) userEl.innerText = u.username ? '@' + u.username : 'ID: ' + u.id;
+        if (avaEl && !avaEl.querySelector('img')) {
+            if (u.photo_url) {
+                avaEl.innerHTML = '<img src="' + u.photo_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+            } else if (u.username) {
+                avaEl.innerHTML = '<img src="https://t.me' + u.username + '.jpg" onerror="this.remove()" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+            }
+        }
+    } catch (e) {}
+}, 800);
+</script>
 
 
         
