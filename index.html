@@ -1,330 +1,131 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BitGift</title>
-    <script src="https://telegram.org"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0b101d 0%, #162238 50%, #0d1526 100%);
-            color: #ffffff;
-            min-height: 100vh;
-            padding-bottom: 160px;
-            overflow-x: hidden;
-        }
-
-        .blob {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(70px);
-            z-index: 0;
-            opacity: 0.45;
-            pointer-events: none;
-        }
-        .blob-1 { width: 250px; height: 250px; background: #0284c7; top: -50px; left: -50px; }
-        .blob-2 { width: 300px; height: 300px; background: #4f46e5; bottom: 50px; right: -80px; }
-
-        header {
-            position: relative;
-            z-index: 10;
-            padding: 16px;
-            text-align: center;
-        }
-
-        .app-title {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 12px;
-            background: linear-gradient(to right, #fff, #7dd3fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .balances {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .currency-pill {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            border-radius: 20px;
-            padding: 6px 12px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .container {
-            position: relative;
-            z-index: 10;
-            padding: 0 16px;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-top: 1px solid rgba(255, 255, 255, 0.28);
-            border-radius: 24px;
-            padding: 16px;
-            margin-bottom: 14px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-        }
-
-        .empty-market {
-            text-align: center;
-            padding: 90px 20px;
-            color: #94a3b8;
-            font-size: 15px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.35), rgba(59, 130, 246, 0.35));
-            border: 1px solid rgba(56, 189, 248, 0.6);
-            color: #ffffff;
-            padding: 10px 18px;
-            border-radius: 16px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Кнопка Продать над нижней панелью */
-        .sell-box {
-            position: fixed;
-            bottom: 86px;
-            left: 16px;
-            right: 16px;
-            max-width: 468px;
-            margin: 0 auto;
-            z-index: 50;
-        }
-
-        .btn-sell {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.14);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.28);
-            color: #ffffff;
-            padding: 14px;
-            border-radius: 22px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
-        }
-
-        .btn-sell:active {
-            transform: scale(0.97);
-            background: rgba(255, 255, 255, 0.22);
-        }
-
-        /* Задание */
-        .task-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .task-info h4 { font-size: 15px; margin-bottom: 4px; }
-        .task-info p { font-size: 12px; color: #94a3b8; }
-
-        /* Профиль */
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .avatar-wrap {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid #38bdf8;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .avatar-wrap img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .user-details h3 { font-size: 18px; margin-bottom: 2px; }
-        .user-details p { font-size: 13px; color: #94a3b8; }
-
-        .lock-badge {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-top: 6px;
-            color: #cbd5e1;
-        }
-
-        .inventory-empty {
-            text-align: center;
-            padding: 20px 10px;
-            color: #94a3b8;
-            font-size: 14px;
-        }
-
-        /* Нижняя панель из 3 вкладок */
-        .bottom-nav {
-            position: fixed;
-            bottom: 14px;
-            left: 16px;
-            right: 16px;
-            max-width: 468px;
-            margin: 0 auto;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 28px;
-            display: flex;
-            padding: 6px;
-            z-index: 100;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-        }
-
-        .nav-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 12px 8px;
-            border-radius: 22px;
-            cursor: pointer;
-        }
-
-        .nav-btn.active {
-            background: rgba(255, 255, 255, 0.16);
-            color: #ffffff;
-        }
-
-        /* Стеклянная всплывающая плашка */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-card {
-            background: rgba(22, 34, 56, 0.92);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 24px;
-            padding: 24px 20px;
-            max-width: 340px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-card h4 {
-            font-size: 17px;
-            margin-bottom: 10px;
-            color: #fff;
-        }
-
-        .modal-card p {
-            font-size: 14px;
-            color: #cbd5e1;
-            margin-bottom: 18px;
-            line-height: 1.4;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>BitGift</title>
+<script src="https://telegram.org"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:linear-gradient(135deg,#0b101d,#162238,#0d1526);color:#fff;min-height:100vh;padding-bottom:150px}
+header{padding:16px;text-align:center}
+.title{font-size:22px;font-weight:800;margin-bottom:12px;color:#7dd3fc}
+.bals{display:flex;gap:8px;justify-content:center}
+.pill{background:rgba(255,255,255,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:6px 12px;font-size:13px;font-weight:600}
+.wrap{padding:0 16px;max-width:500px;margin:0 auto}
+.card{background:rgba(255,255,255,.08);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);border-radius:22px;padding:16px;margin-bottom:14px}
+.empty{text-align:center;padding:85px 20px;color:#94a3b8;font-size:15px}
+.btn{background:rgba(56,189,248,.3);border:1px solid rgba(56,189,248,.6);color:#fff;padding:10px 18px;border-radius:16px;font-size:14px;font-weight:600;cursor:pointer}
+.sell-wrap{position:fixed;bottom:84px;left:16px;right:16px;max-width:468px;margin:0 auto;z-index:20}
+.btn-sell{width:100%;background:rgba(255,255,255,.14);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.28);color:#fff;padding:14px;border-radius:20px;font-size:15px;font-weight:600;cursor:pointer}
+.task{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.task h4{font-size:15px;margin-bottom:4px}
+.task p{font-size:12px;color:#94a3b8}
+.prof{display:flex;align-items:center;gap:14px}
+.ava{width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid #38bdf8;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;flex-shrink:0}
+.ava img{width:100%;height:100%;object-fit:cover}
+.badge{display:inline-block;background:rgba(255,255,255,.1);padding:4px 10px;border-radius:12px;font-size:12px;margin-top:6px;color:#cbd5e1}
+.nav{position:fixed;bottom:14px;left:16px;right:16px;max-width:468px;margin:0 auto;background:rgba(15,23,42,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.18);border-radius:26px;display:flex;padding:6px;z-index:30}
+.nbtn{flex:1;background:0 0;border:none;color:#94a3b8;font-size:14px;font-weight:600;padding:12px 6px;border-radius:20px;cursor:pointer}
+.nbtn.act{background:rgba(255,255,255,.16);color:#fff}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:999;align-items:center;justify-content:center;padding:20px}
+.mcard{background:#162238;border:1px solid rgba(255,255,255,.25);border-radius:24px;padding:22px;max-width:330px;width:100%;text-align:center}
+.mcard h4{font-size:17px;margin-bottom:8px}
+.mcard p{font-size:14px;color:#cbd5e1;margin-bottom:16px}
+</style>
 </head>
 <body>
 
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
+<header>
+    <div class="title">BitGift</div>
+    <div class="bals">
+        <div class="pill">⭐️ 0 Stars</div>
+        <div class="pill">💎 0.0 TON</div>
+        <div class="pill">🪙 0 Gram</div>
+    </div>
+</header>
 
-    <header>
-        <div class="app-title">BitGift</div>
-        <div class="balances">
-            <div class="currency-pill">⭐️ 0 Stars</div>
-            <div class="currency-pill">💎 0.0 TON</div>
-            <div class="currency-pill">🪙 0 Gram</div>
-        </div>
-    </header>
-
-    <div class="container">
-        <!-- ВКЛАДКА 1: MARKET -->
-        <div id="page-market" style="display: block;">
-            <div class="empty-market">Подарков пока нет</div>
-            <div class="sell-box">
-                <button type="button" class="btn-sell" onclick="openModal('Продажа подарка', 'Перешлите подарок нашему боту в личные сообщения, чтобы выставить его на продажу.')">➕ Продать</button>
-            </div>
-        </div>
-
-        <!-- ВКЛАДКА 2: ЗАДАНИЕ -->
-        <div id="page-tasks" style="display: none;">
-            <div class="glass-card task-item">
-                <div class="task-info">
-                    <h4>📺 Реклама AdsGram</h4>
-                    <p>Просмотр рекламных роликов</p>
-                </div>
-                <button type="button" class="btn" onclick="openModal('AdsGram', 'Просмотр рекламы пока не работает — скоро запустим!')">Смотреть</button>
-            </div>
-        </div>
-
-        <!-- ВКЛАДКА 3: ПРОФИЛЬ -->
-        <div id="page-profile" style="display: none;">
-            <div class="glass-card profile-header">
-                <div id="user-avatar-box" class="avatar-wrap">👤</div>
-                <div class="user-details">
-                    <h3 id="user-name">Пользователь</h3>
-                    <p id="user-username">@username</p>
-                    <div class="lock-badge">🔒 Синхронизировано с Telegram</div>
-                </div>
-            </div>
-            <div class="glass-card">
-                <h4 style="margin-bottom: 8px;">🎒 Инвентарь подарков</h4>
-                <div class="inventory-empty">
-                    🔒 Ваши подарки хранятся напрямую в вашем аккаунте Telegram.
-                </div>
-            </div>
+<div class="wrap">
+    <div id="p1">
+        <div class="empty">Подарков пока нет</div>
+        <div class="sell-wrap">
+            <button type="button" class="btn-sell" onclick="msg('Продажа','Перешлите подарок нашему боту, чтобы выставить его на маркет.')">➕ Продать</button>
         </div>
     </div>
 
-    <!-- НИЖНЯЯ ПАНЕЛЬ -->
+    <div id="p2" style="display:none">
+        <div class="card task">
+            <div>
+                <h4>📺 Реклама AdsGram</h4>
+                <p>Просмотр рекламных роликов</p>
+            </div>
+            <button type="button" class="btn" onclick="msg('AdsGram','Просмотр рекламы пока не работает — скоро запустим!')">Смотреть</button>
+        </div>
+    </div>
+
+    <div id="p3" style="display:none">
+        <div class="card prof">
+            <div id="ava" class="ava">👤</div>
+            <div>
+                <h3 id="uname">Пользователь</h3>
+                <p id="uuser" style="font-size:13px;color:#94a3b8">@username</p>
+                <div class="badge">🔒 Синхронизировано с Telegram</div>
+            </div>
+        </div>
+        <div class="card">
+            <h4 style="margin-bottom:8px">🎒 Инвентарь подарков</h4>
+            <p style="text-align:center;padding:16px 0;color:#94a3b8;font-size:14px">🔒 Подарки хранятся напрямую в вашем аккаунте Telegram.</p>
+        </div>
+    </div>
+</div>
+
+<div class="nav">
+    <button type="button" id="b1" class="nbtn act" onclick="go(1)">Market</button>
+    <button type="button" id="b2" class="nbtn" onclick="go(2)">Задание</button>
+    <button type="button" id="b3" class="nbtn" onclick="go(3)">Профиль</button>
+</div>
+
+<div id="mod" class="modal" onclick="this.style.display='none'">
+    <div class="mcard" onclick="event.stopPropagation()">
+        <h4 id="mt"></h4>
+        <p id="mp"></p>
+        <button type="button" class="btn" style="width:100%" onclick="document.getElementById('mod').style.display='none'">Понятно</button>
+    </div>
+</div>
+
+<script>
+function go(n){
+    document.getElementById('p1').style.display=(n===1)?'block':'none';
+    document.getElementById('p2').style.display=(n===2)?'block':'none';
+    document.getElementById('p3').style.display=(n===3)?'block':'none';
+    document.getElementById('b1').className=(n===1)?'nbtn act':'nbtn';
+    document.getElementById('b2').className=(n===2)?'nbtn act':'nbtn';
+    document.getElementById('b3').className=(n===3)?'nbtn act':'nbtn';
+}
+function msg(t,p){
+    document.getElementById('mt').innerText=t;
+    document.getElementById('mp').innerText=p;
+    document.getElementById('mod').style.display='flex';
+}
+try{
+    var tg=window.Telegram.WebApp;
+    tg.ready();tg.expand();
+    var u=tg.initDataUnsafe.user;
+    if(u){
+        document.getElementById('uname').innerText=(u.first_name||'')+(u.last_name?' '+u.last_name:'');
+        document.getElementById('uuser').innerText=u.username?'@'+u.username:'ID: '+u.id;
+        if(u.photo_url){document.getElementById('ava').innerHTML='<img src="'+u.photo_url+'">';}
+        else if(u.username){document.getElementById('ava').innerHTML='<img src="https://t.me" onerror="this.remove()">';}
+    }
+}catch(e){}
+</script>
+</body>
+</html>
+
+
+        
+            
+            
+            
+
+        
