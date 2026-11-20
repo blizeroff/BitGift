@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BitGift — Gift Marketplace</title>
-    <!-- Обязательный скрипт Telegram WebApp -->
     <script src="https://telegram.org"></script>
     <style>
         :root {
@@ -29,12 +28,11 @@
             background: var(--bg-gradient);
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 90px;
+            padding-bottom: 140px;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* Фоновые блики для эффекта жидкого стекла */
         .blob {
             position: fixed;
             border-radius: 50%;
@@ -45,7 +43,6 @@
         .blob-1 { width: 250px; height: 250px; background: #0284c7; top: -50px; left: -50px; }
         .blob-2 { width: 300px; height: 300px; background: #4f46e5; bottom: 50px; right: -80px; }
 
-        /* Шапка с валютами */
         header {
             padding: 16px;
             display: flex;
@@ -85,7 +82,6 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        /* Контейнер вкладок */
         .container {
             padding: 0 16px;
             max-width: 500px;
@@ -106,7 +102,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Стеклянные карточки */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -119,65 +114,62 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
         }
 
-        /* Маркет */
-        .market-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .gift-card {
+        .empty-market {
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            margin-bottom: 0;
-        }
-
-        .gift-emoji {
-            font-size: 44px;
-            margin: 10px 0;
-            filter: drop-shadow(0 4px 10px rgba(255,255,255,0.2));
-        }
-
-        .gift-name {
+            padding: 70px 20px;
+            color: var(--text-muted);
             font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 4px;
         }
 
-        .gift-price {
-            font-size: 13px;
-            color: var(--accent);
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        /* Кнопки */
         .btn {
             background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(59, 130, 246, 0.3));
             border: 1px solid rgba(56, 189, 248, 0.5);
             color: #fff;
-            padding: 10px 16px;
+            padding: 10px 18px;
             border-radius: 16px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            width: 100%;
-            transition: transform 0.1s, background 0.2s;
+            transition: transform 0.1s;
         }
 
         .btn:active {
             transform: scale(0.96);
         }
 
-        .btn-sell {
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid var(--glass-border);
-            margin-bottom: 16px;
+        /* Плавающая кнопка "Продать" над нижними вкладками */
+        .floating-sell-wrap {
+            position: fixed;
+            bottom: 82px;
+            left: 16px;
+            right: 16px;
+            max-width: 468px;
+            margin: 0 auto;
+            z-index: 99;
         }
 
-        /* Задания */
+        .btn-sell-floating {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid var(--glass-highlight);
+            color: #fff;
+            padding: 14px;
+            border-radius: 22px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s;
+        }
+
+        .btn-sell-floating:active {
+            transform: scale(0.97);
+        }
+
+        /* Задание */
         .task-item {
             display: flex;
             justify-content: space-between;
@@ -187,7 +179,7 @@
 
         .task-info h4 { font-size: 15px; margin-bottom: 4px; }
         .task-info p { font-size: 12px; color: var(--text-muted); }
-        .task-item .btn { width: auto; white-space: nowrap; }
+        .task-item .btn { white-space: nowrap; }
 
         /* Профиль */
         .profile-header {
@@ -196,21 +188,28 @@
             gap: 14px;
         }
 
-        .avatar {
-            width: 60px;
-            height: 60px;
+        .avatar-wrap {
+            width: 62px;
+            height: 62px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             border: 2px solid var(--accent);
-            object-fit: cover;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
             font-weight: bold;
+            flex-shrink: 0;
         }
 
-        .user-details h3 { font-size: 18px; }
+        .avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-details h3 { font-size: 18px; margin-bottom: 2px; }
         .user-details p { font-size: 13px; color: var(--text-muted); }
 
         .inventory-empty {
@@ -256,7 +255,7 @@
             color: var(--text-muted);
             font-size: 13px;
             font-weight: 600;
-            padding: 10px 18px;
+            padding: 10px 14px;
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.2s;
@@ -285,46 +284,42 @@
     </header>
 
     <div class="container">
-        <!-- ВКЛАДКА 1: МАРКЕТ -->
+        <!-- ВКЛАДКА 1: MARKET -->
         <div id="tab-market" class="tab-content active">
-            <button class="btn btn-sell" onclick="sellGiftAction()">➕ Продать свой подарок</button>
-            
-            <div class="market-grid">
-                <div class="glass-card gift-card">
-                    <div>
-                        <div class="gift-emoji">🧸</div>
-                        <div class="gift-name">Plush Bear</div>
-                        <div class="gift-price">150 ⭐️ / 0.8 TON</div>
-                    </div>
-                    <button class="btn" onclick="buyGift('Plush Bear')">Купить</button>
-                </div>
+            <div class="empty-market">
+                Подарков пока нет
+            </div>
 
-                <div class="glass-card gift-card">
-                    <div>
-                        <div class="gift-emoji">🚀</div>
-                        <div class="gift-name">Cyber Rocket</div>
-                        <div class="gift-price">500 ⭐️ / 2.5 TON</div>
-                    </div>
-                    <button class="btn" onclick="buyGift('Cyber Rocket')">Купить</button>
-                </div>
+            <div class="floating-sell-wrap">
+                <button class="btn-sell-floating" onclick="sellGiftAction()">➕ Продать</button>
+            </div>
+        </div>
 
-                <div class="glass-card gift-card">
-                    <div>
-                        <div class="gift-emoji">💎</div>
-                        <div class="gift-name">Crystal Heart</div>
-                        <div class="gift-price">1200 ⭐️ / 6.0 TON</div>
-                    </div>
-                    <button class="btn" onclick="buyGift('Crystal Heart')">Купить</button>
+        <!-- ВКЛАДКА 2: ЗАДАНИЕ -->
+        <div id="tab-tasks" class="tab-content">
+            <div class="glass-card task-item">
+                <div class="task-info">
+                    <h4>📺 Реклама AdsGram</h4>
+                    <p>Просмотр рекламных роликов</p>
                 </div>
+                <button class="btn" onclick="watchAd()">Смотреть</button>
+            </div>
+        </div>
 
-                <div class="glass-card gift-card">
-                    <div>
-                        <div class="gift-emoji">👑</div>
-                        <div class="gift-name">Royal Crown</div>
-            
-            
-            
-            
-        
-        
-            
+        <!-- ВКЛАДКА 3: ПРОФИЛЬ -->
+        <div id="tab-profile" class="tab-content">
+            <div class="glass-card profile-header">
+                <div id="user-avatar-box" class="avatar-wrap">👤</div>
+                <div class="user-details">
+                    <h3 id="user-name">Загрузка...</h3>
+                    <p id="user-username">@username</p>
+                    <div class="lock-badge">🔒 Синхронизировано с Telegram</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h4 style="margin-bottom: 8px;">🎒 Инвентарь подарков</h4>
+                <div class="inventory-empty">
+                    🔒 Ваши подарки хранятся напрямую в вашем аккаунте Telegram.<br><br>
+                    Нажмите «Продать» во вкладке Market, чтобы выставить подарок на витрину.
+                </div>
