@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BitGift</title>
+    <title>BitGift — Gift Marketplace</title>
+    <!-- Обязательный скрипт Telegram WebApp -->
     <script src="https://telegram.org"></script>
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #070a12 0%, #111827 50%, #090d16 100%);
-            --glass-bg: rgba(255, 255, 255, 0.06);
+            --bg-gradient: linear-gradient(135deg, #0b101d 0%, #162238 50%, #0d1526 100%);
+            --glass-bg: rgba(255, 255, 255, 0.08);
             --glass-border: rgba(255, 255, 255, 0.16);
-            --glass-highlight: rgba(255, 255, 255, 0.28);
-            --green-glass: rgba(34, 197, 94, 0.22);
-            --green-border: rgba(74, 222, 128, 0.45);
+            --glass-highlight: rgba(255, 255, 255, 0.25);
+            --accent: #38bdf8;
             --text-main: #ffffff;
             --text-muted: #94a3b8;
         }
@@ -23,95 +23,78 @@
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
-            user-select: none;
         }
 
         body {
             background: var(--bg-gradient);
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 130px;
+            padding-bottom: 90px;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* Фоновые световые пятна для глубины жидкого стекла */
+        /* Фоновые блики для эффекта жидкого стекла */
         .blob {
             position: fixed;
             border-radius: 50%;
-            filter: blur(75px);
+            filter: blur(70px);
             z-index: -1;
-            opacity: 0.4;
-            pointer-events: none;
+            opacity: 0.5;
         }
-        .blob-1 { width: 240px; height: 240px; background: #2563eb; top: -50px; left: -50px; }
-        .blob-2 { width: 220px; height: 220px; background: #7c3aed; bottom: 60px; right: -40px; }
+        .blob-1 { width: 250px; height: 250px; background: #0284c7; top: -50px; left: -50px; }
+        .blob-2 { width: 300px; height: 300px; background: #4f46e5; bottom: 50px; right: -80px; }
 
-        /* Базовый стиль жидкого стекла */
-        .liquid-glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 var(--glass-highlight);
-        }
-
-        /* Верхняя шапка */
+        /* Шапка с валютами */
         header {
-            padding: 14px 16px 8px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 12px;
         }
 
-        .brand-title {
+        .app-title {
             font-size: 22px;
             font-weight: 800;
-            letter-spacing: -0.5px;
-            text-align: center;
-            background: linear-gradient(90deg, #ffffff, #93c5fd);
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #fff, #7dd3fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
         }
 
-        /* Плашка валют справа сверху */
-        .top-currencies-wrap {
-            width: 100%;
+        .balances {
             display: flex;
-            justify-content: flex-end;
+            gap: 8px;
+            width: 100%;
+            justify-content: center;
         }
 
         .currency-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 12px;
-            border-radius: 14px;
-            font-size: 12px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 13px;
             font-weight: 600;
-        }
-
-        .curr-item {
             display: flex;
             align-items: center;
-            gap: 4px;
-        }
-
-        .curr-locked {
-            color: var(--text-muted);
-            opacity: 0.75;
-            cursor: pointer;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         /* Контейнер вкладок */
         .container {
-            padding: 12px 16px;
+            padding: 0 16px;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
         .tab-content {
             display: none;
-            animation: fadeIn 0.2s ease;
+            animation: fadeIn 0.25s ease;
         }
 
         .tab-content.active {
@@ -119,221 +102,229 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Пустой маркет */
-        .empty-state {
-            margin-top: 60px;
-            padding: 28px 20px;
-            border-radius: 24px;
-            text-align: center;
-        }
-        .empty-icon {
-            font-size: 42px;
-            margin-bottom: 10px;
-            opacity: 0.8;
-        }
-        .empty-state h3 {
-            font-size: 16px;
-            margin-bottom: 6px;
-        }
-        .empty-state p {
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-
-        /* Сетка выставленных товаров в маркете */
-        .market-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 8px;
-        }
-        .gift-card {
-            padding: 14px;
-            border-radius: 20px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .gift-card .emoji { font-size: 44px; margin: 8px 0; }
-        .gift-card .name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-        .gift-card .seller { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
-        .gift-card .buy-btn {
-            width: 100%;
-            padding: 8px;
-            border-radius: 12px;
-            border: 1px solid rgba(96, 165, 250, 0.4);
-            background: rgba(59, 130, 246, 0.25);
-            color: #fff;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* Маленькая зелёная кнопка Продать над навигацией */
-        .sell-btn-container {
-            position: fixed;
-            bottom: 84px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            z-index: 90;
-            pointer-events: none;
-        }
-
-        .sell-btn {
-            pointer-events: auto;
-            padding: 8px 22px;
-            border-radius: 14px;
-            background: var(--green-glass);
+        /* Стеклянные карточки */
+        .glass-card {
+            background: var(--glass-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--green-border);
-            box-shadow: 0 6px 24px rgba(34, 197, 94, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.15s;
-        }
-        .sell-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Вкладка Задания */
-        .task-card {
-            padding: 16px;
-            border-radius: 22px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 12px;
-        }
-        .task-info h4 { font-size: 15px; margin-bottom: 4px; }
-        .task-info p { font-size: 12px; color: var(--text-muted); }
-        .ad-btn {
-            padding: 9px 16px;
-            border-radius: 14px;
             border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
+            border-top: 1px solid var(--glass-highlight);
+            border-radius: 24px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
         }
-        .ad-btn:active { transform: scale(0.95); }
 
-        /* Вкладка Профиль */
-        .profile-header {
+        /* Маркет */
+        .market-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .gift-card {
+            text-align: center;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            margin-top: 10px;
-            margin-bottom: 20px;
-        }
-        .avatar-wrapper {
-            width: 82px;
-            height: 82px;
-            border-radius: 50%;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-        }
-        .avatar-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .profile-name {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .profile-username {
-            font-size: 13px;
-            color: var(--text-muted);
+            justify-content: space-between;
+            margin-bottom: 0;
         }
 
-        /* Чек-лист валют в профиле */
-        .wallet-checklist {
-            border-radius: 22px;
-            padding: 8px 16px;
+        .gift-emoji {
+            font-size: 44px;
+            margin: 10px 0;
+            filter: drop-shadow(0 4px 10px rgba(255,255,255,0.2));
         }
-        .check-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .check-row:last-child {
-            border-bottom: none;
-        }
-        .check-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
+
+        .gift-name {
+            font-size: 15px;
             font-weight: 600;
+            margin-bottom: 4px;
         }
-        .check-right {
+
+        .gift-price {
             font-size: 13px;
+            color: var(--accent);
+            margin-bottom: 12px;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
-        .connect-ton-btn {
-            margin-top: 16px;
-            width: 100%;
-            padding: 13px;
-            border-radius: 16px;
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            background: rgba(59, 130, 246, 0.22);
+
+        /* Кнопки */
+        .btn {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(59, 130, 246, 0.3));
+            border: 1px solid rgba(56, 189, 248, 0.5);
             color: #fff;
+            padding: 10px 16px;
+            border-radius: 16px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            width: 100%;
+            transition: transform 0.1s, background 0.2s;
         }
-        .connect-ton-btn:active { transform: scale(0.98); }
 
-        /* Нижняя навигация: компактная, по центру, закруглённая */
-        .bottom-nav-wrapper {
-            position: fixed;
-            bottom: 18px;
-            left: 0;
-            right: 0;
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-sell {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid var(--glass-border);
+            margin-bottom: 16px;
+        }
+
+        /* Задания */
+        .task-item {
             display: flex;
-            justify-content: center;
-            z-index: 100;
-            pointer-events: none;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
         }
 
-        nav {
-            pointer-events: auto;
-            display: inline-flex;
+        .task-info h4 { font-size: 15px; margin-bottom: 4px; }
+        .task-info p { font-size: 12px; color: var(--text-muted); }
+        .task-item .btn { width: auto; white-space: nowrap; }
+
+        /* Профиль */
+        .profile-header {
+            display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 8px;
-            border-radius: 24px;
+            gap: 14px;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid var(--accent);
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-details h3 { font-size: 18px; }
+        .user-details p { font-size: 13px; color: var(--text-muted); }
+
+        .inventory-empty {
+            text-align: center;
+            padding: 24px 10px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .lock-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-top: 8px;
+            color: #cbd5e1;
+        }
+
+        /* Нижняя панель навигации */
+        nav {
+            position: fixed;
+            bottom: 14px;
+            left: 16px;
+            right: 16px;
+            max-width: 468px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            z-index: 100;
         }
 
         .nav-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            padding: 8px 18px;
-            border-radius: 18px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .nav-btn.active {
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <header>
+        <div class="app-title">BitGift</div>
+        <div class="balances">
+            <div class="currency-pill">⭐️ <span id="bal-stars">0</span> Stars</div>
+            <div class="currency-pill">💎 <span id="bal-ton">0.0</span> TON</div>
+            <div class="currency-pill">🪙 <span id="bal-gram">0</span> Gram</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- ВКЛАДКА 1: МАРКЕТ -->
+        <div id="tab-market" class="tab-content active">
+            <button class="btn btn-sell" onclick="sellGiftAction()">➕ Продать свой подарок</button>
+            
+            <div class="market-grid">
+                <div class="glass-card gift-card">
+                    <div>
+                        <div class="gift-emoji">🧸</div>
+                        <div class="gift-name">Plush Bear</div>
+                        <div class="gift-price">150 ⭐️ / 0.8 TON</div>
+                    </div>
+                    <button class="btn" onclick="buyGift('Plush Bear')">Купить</button>
+                </div>
+
+                <div class="glass-card gift-card">
+                    <div>
+                        <div class="gift-emoji">🚀</div>
+                        <div class="gift-name">Cyber Rocket</div>
+                        <div class="gift-price">500 ⭐️ / 2.5 TON</div>
+                    </div>
+                    <button class="btn" onclick="buyGift('Cyber Rocket')">Купить</button>
+                </div>
+
+                <div class="glass-card gift-card">
+                    <div>
+                        <div class="gift-emoji">💎</div>
+                        <div class="gift-name">Crystal Heart</div>
+                        <div class="gift-price">1200 ⭐️ / 6.0 TON</div>
+                    </div>
+                    <button class="btn" onclick="buyGift('Crystal Heart')">Купить</button>
+                </div>
+
+                <div class="glass-card gift-card">
+                    <div>
+                        <div class="gift-emoji">👑</div>
+                        <div class="gift-name">Royal Crown</div>
+            
+            
+            
+            
+        
+        
+            
