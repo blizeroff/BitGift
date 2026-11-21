@@ -207,7 +207,8 @@ const res = await fetch(`${WORKER_URL}/gifts?user_id=${userId}`);
       grid.appendChild(card);
     });
   } catch (e) {
-    grid.innerHTML = '<p style="grid-column:span 2;text-align:center;opacity:.6;font-size:13px">Ошибка загрузки</p>';
+grid.innerHTML = `<p style="grid-column:span 2;text-align:center;color:#f87171">${e.message}</p>`;
+
   }
 }
 loadUserGifts();
