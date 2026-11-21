@@ -34,6 +34,13 @@ header{padding:16px;text-align:center}
 .mcard{background:#162238;border:1px solid rgba(255,255,255,.25);border-radius:24px;padding:22px;max-width:330px;width:100%;text-align:center}
 .mcard h4{font-size:17px;margin-bottom:8px}
 .mcard p{font-size:14px;color:#cbd5e1;margin-bottom:16px}
+.gifts-box{margin:16px 0;padding-bottom:90px}
+.gifts-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.gifts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.gift-card{background:rgba(255,255,255,.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:12px;text-align:center}
+.gift-card img{width:74px;height:74px;object-fit:contain}
+.gift-title{font-size:13px;font-weight:600;color:#fff;margin-top:8px}
+
 </style>
 </head>
 <body>
@@ -74,11 +81,17 @@ header{padding:16px;text-align:center}
             </div>
         </div>
         <div id="ton-connect" style="margin: 12px 0; display: flex; justify-content: center;"></div>
+<div class="gifts-box">
+  <div class="gifts-head">
+    <h4 style="margin:0">Мои подарки</h4>
+    <span id="gifts-count" style="font-size:12px;opacity:.7">0</span>
+  </div>
+  <div id="inventory-grid" class="gifts-grid">
+    <p style="grid-column:span 2;text-align:center;opacity:.6;font-size:13px">Загрузка...</p>
+  </div>
+</div>
 
-        <div class="card">
-            <h4 style="margin-bottom:8px">🎒 Инвентарь подарков</h4>
-            <p style="text-align:center;padding:16px 0;color:#94a3b8;font-size:14px">🔒 Подарки хранятся напрямую в вашем аккаунте Telegram.</p>
-        </div>
+
     </div>
 </div>
 
@@ -160,6 +173,42 @@ const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 
   buttonRootId: 'ton-connect'
 });
+const WORKER_URL = "https://workers.dev";
+async function loadUserGifts() {
+  const tg = window.Telegram && window.Telegram.WebApp;
+  const userId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id;
+  const grid = document.getElementById("inventory-grid");
+  const countEl = document.getElementById("gifts-count");
+  if (!grid) return;
+  if (!userId) {
+    grid.innerHTML = '<p style="grid-column:span 2;text-align:center;opacity:.6;font-size:13px">Откройте в Telegram</p>';
+    return;
+  }
+  try {
+    const res = await fetch(`${WORKER_URL}/api/gifts?user_id=${userId}`);
+    const data = await res.json();
+    const gifts = (data.result && data.result.gifts) || [];
+    if (countEl) countEl.innerText = gifts.length;
+    if (!data.ok || gifts.length === 0) {
+      grid.innerHTML = '<p style="grid-column:span 2;text-align:center;opacity:.6;font-size:13px">Подарков пока нет</p>';
+      return;
+    }
+    grid.innerHTML = "";
+    gifts.forEach((item) => {
+      const g = item.gift;
+      const thumb = (g.sticker && g.sticker.thumbnail) || g.sticker;
+      const imgUrl = thumb && thumb.file_id ? `${WORKER_URL}/api/file?file_id=${thumb.file_id}` : "";
+      const title = item.type === "unique" ? `${g.base_name} #${g.number}` : `Подарок (${g.star_count} ★)`;
+      const card = document.createElement("div");
+      card.className = "gift-card";
+      card.innerHTML = `<img src="${imgUrl}" alt=""><div class="gift-title">${title}</div>`;
+      grid.appendChild(card);
+    });
+  } catch (e) {
+    grid.innerHTML = '<p style="grid-column:span 2;text-align:center;opacity:.6;font-size:13px">Ошибка загрузки</p>';
+  }
+}
+loadUserGifts();
 
 </script>
 </body>
