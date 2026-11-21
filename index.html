@@ -186,7 +186,8 @@ async function loadUserGifts() {
     return;
   }
   try {
-    const res = await fetch(`${WORKER_URL}/api/gifts?user_id=${userId}`);
+const res = await fetch(`${WORKER_URL}/gifts?user_id=${userId}`);
+
     const data = await res.json();
     const gifts = (data.result && data.result.gifts) || [];
     if (countEl) countEl.innerText = gifts.length;
