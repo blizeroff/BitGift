@@ -298,10 +298,14 @@ function showBoostToast() {
 function watchAdsGram() {
   if (!AdController) return alert('Реклама загружается, подождите пару секунд');
   AdController.show().then(() => {
-    adCount++;
-    localStorage.setItem('bitgift_ads', adCount);
-    updateAdCounter();
-    if (adCount % 3 === 0) showBoostToast();
+        adCount++;
+        if (adCount >= 3) {
+            adCount = 0;
+            showBoostToast();
+        }
+        localStorage.setItem('bitgift_ads', adCount);
+        updateAdCounter();
+
   }).catch(() => {});
 }
 
