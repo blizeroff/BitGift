@@ -46,10 +46,65 @@ header{padding:16px;text-align:center}
 .gift-card{background:rgba(255,255,255,.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:12px;text-align:center}
 .gift-card img{width:74px;height:74px;object-fit:contain}
 .gift-title{font-size:13px;font-weight:600;color:#fff;margin-top:8px}
+.boost-toast {
+  position: fixed;
+  top: -90px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.92);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 20px;
+  background: rgba(24, 24, 30, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), 0 0 14px rgba(99, 179, 237, 0.3);
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  pointer-events: none;
+  opacity: 0;
+  transition: top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.3s ease,
+              transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.boost-toast.show {
+  top: 16px;
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+.boost-toast-icon {
+  font-size: 20px;
+  animation: pulseBoost 1.1s infinite ease-in-out;
+}
+.boost-toast-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #63b3ed;
+}
+.boost-toast-sub {
+  display: block;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.82);
+}
+@keyframes pulseBoost {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.15); }
+}
 
 </style>
 </head>
 <body>
+<div id="boostToast" class="boost-toast">
+  <div class="boost-toast-icon">🚀</div>
+  <div>
+    <span class="boost-toast-title">+1 Поднятие карточки</span>
+    <span class="boost-toast-sub">Доступно в профиле и маркете</span>
+  </div>
+</div>
 
 <header>
     <div class="title">BitGift</div>
@@ -226,6 +281,19 @@ function updateAdCounter() {
   if (counterEl) counterEl.textContent = `Прогресс: (${adCount % 3}/3)`;
 }
 updateAdCounter();
+let boostToastTimer = null;
+function showBoostToast() {
+  const toast = document.getElementById('boostToast');
+  if (!toast) return;
+  if (window.Telegram?.WebApp?.HapticFeedback) {
+    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+  }
+  toast.classList.add('show');
+  clearTimeout(boostToastTimer);
+  boostToastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
 
 function watchAdsGram() {
   if (!AdController) return alert('Реклама загружается, подождите пару секунд');
@@ -233,7 +301,7 @@ function watchAdsGram() {
     adCount++;
     localStorage.setItem('bitgift_ads', adCount);
     updateAdCounter();
-    if (adCount % 3 === 0) alert('Награда получена за 3 просмотра!');
+    if (adCount % 3 === 0) showBoostToast();
   }).catch(() => {});
 }
 
